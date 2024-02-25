@@ -11,7 +11,7 @@ namespace PipelineOriented.PipeLine
     public static class PipeLineComposer
     {
         public static async Task<BaseResponseDto<TGlobalIn, TOut>> Handle<TGlobalIn, TLocalIn, TOut>(this Task<BaseResponseDto<TGlobalIn, TLocalIn>> input, string name, Func<BaseResponseDto<TGlobalIn, TLocalIn>, Task<BaseResponseDto<TGlobalIn, TOut>>> func)
-        {            
+        {
             var result = await input;
             if (result.IsSuccess.HasValue)
             {
@@ -27,7 +27,7 @@ namespace PipelineOriented.PipeLine
 
             if (toggleOff)
             {
-                if (result.InterMethodsResult.Data is TOut internalResult)
+                if (result.InterMethodsResult != null && result.InterMethodsResult.Data is TOut internalResult)
                 {
                     return result.WithNewInterMethodResult(internalResult);
                 }

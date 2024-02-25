@@ -23,7 +23,17 @@ namespace Demo.Implementors
         public async Task<BaseResponseDto<LoginResponse>> LoginAsync(BaseRequestDto<LoginRequest> request)
         {
             return await BaseResponseDto<LoginResponse>.Success(new LoginResponse())
-                          .Start()                              
+                          .Start()
+                           .Handle("return access response from cache", async (result) =>
+                           {
+                               var loginResponse = _memoryCache.Get<LoginResponse>(request.Data.Email);
+                               if (log is null)
+                               {
+                                   return result.Error(user, "Email Not exists");
+                               }
+                               return result.InternalSuccess(user);
+
+                           })
                                .Handle("check if user exist in db", async (result) =>
                                {
                                    var user = _dataContext.Users.Include(x => x.Role)
@@ -45,7 +55,7 @@ namespace Demo.Implementors
                                    }
                                    return result.InternalSuccess(model);
                                })
-                               .Handle("return if user has not any active role", async (result) =>
+                               .Handle("return if user has not any active role", toggleOff: true, async (result) =>
                                   {
 
                                       var model = result.InterMethodsResult.Data;
@@ -67,10 +77,7 @@ namespace Demo.Implementors
                                      });
 
                                  })
-                          .End("finish", async (result) =>
-                          {
-                             
-                          });
+                          .End("finish", async (result) => { });
         }
     }
 
