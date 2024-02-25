@@ -27,11 +27,11 @@ namespace Demo.Implementors
                            .Handle("return access response from cache", async (result) =>
                            {
                                var loginResponse = _memoryCache.Get<LoginResponse>(request.Data.Email);
-                               if (log is null)
+                               if (loginResponse is null)
                                {
-                                   return result.Error(user, "Email Not exists");
+                                   return result.Error(loginResponse, "Email Not exists");
                                }
-                               return result.InternalSuccess(user);
+                               return result.InternalSuccess(loginResponse);
 
                            })
                                .Handle("check if user exist in db", async (result) =>
