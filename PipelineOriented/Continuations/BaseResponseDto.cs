@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace PipelineOriented.Continuations
 {
@@ -83,6 +85,8 @@ namespace PipelineOriented.Continuations
 
     public class BaseResponseDto<TGlobal, TLocal>
     {
+        [JsonIgnore]
+        public string CorrelationName { get; private set; }
         [JsonProperty]
         public BaseResponseDto<TLocal> InterMethodsResult { get; private set; }
 
@@ -117,6 +121,17 @@ namespace PipelineOriented.Continuations
 
         }
 
+        public void SetPipeLineCorrelationName(string feature, string runUniqueID)
+        {
+            CorrelationName = $"{Guid.NewGuid().ToString()}_{feature}";
+        }
+
+        public static (string Correlation, string Feature) GetCorrelationNameSematics(string correlationString)
+        {
+            var sematics = correlationString.Split('_', StringSplitOptions.RemoveEmptyEntries);
+            return (sematics[0], sematics[1]);
+        }
+
         public void SetExecutionTerminationFlag()
         {
             IsExecutionTerminated = true;
@@ -126,6 +141,7 @@ namespace PipelineOriented.Continuations
         public BaseResponseDto<TGlobal, TModel> InternalSuccess<TModel>(TModel data, string message = default)
         {
             var response = new BaseResponseDto<TGlobal, TModel>();
+            response.CorrelationName = this.CorrelationName;
             response.IsSuccess = this.IsSuccess;
             response.Data = this.Data;
             response.Message = this.Message;
@@ -139,6 +155,7 @@ namespace PipelineOriented.Continuations
         public BaseResponseDto<TGlobal, TModel> InternalError<TModel>(TModel data, string message = default, int returnCode = 1)
         {
             var response = new BaseResponseDto<TGlobal, TModel>();
+            response.CorrelationName = this.CorrelationName;
             response.IsSuccess = this.IsSuccess;
             response.Data = this.Data;
             response.Message = this.Message;
@@ -152,6 +169,7 @@ namespace PipelineOriented.Continuations
         public BaseResponseDto<TGlobal, TModel> WithNewInterMethodResult<TModel>(TModel data = default)
         {
             var response = new BaseResponseDto<TGlobal, TModel>();
+            response.CorrelationName = this.CorrelationName;
             response.IsSuccess = this.IsSuccess;
             response.Data = this.Data;
             response.Message = this.Message;
@@ -170,6 +188,7 @@ namespace PipelineOriented.Continuations
         public BaseResponseDto<TGlobal, TModel> Error<TModel>(TModel data, string message = null, int returnCode = 1)
         {
             var response = new BaseResponseDto<TGlobal, TModel>();
+            response.CorrelationName = this.CorrelationName;
             response.IsSuccess = false;
             response.Data = this.Data;
             response.Message = message;

@@ -13,6 +13,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\PipelineOriented\PipelineOriented.csproj" />
+	  <ProjectReference Include="..\StaticAnalyzer\StaticAnalyzer.csproj" />
 	</ItemGroup>
 
 </Project>

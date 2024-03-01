@@ -1,6 +1,7 @@
 using Demo.Abstractions;
 using Demo.Implementors;
 using Demo.Infrastructure;
+using Demo.RunTimeStatistics;
 
 namespace Demo
 {
@@ -25,6 +26,8 @@ namespace Demo
             var app = builder.Build();
 
             DataContext.SeedData();
+            PipeLineInspectorHandler.SetPipelineInspectionMetrics();
+           
             app.UseCors(x => x
                             .AllowAnyOrigin()
                             .AllowAnyMethod()
