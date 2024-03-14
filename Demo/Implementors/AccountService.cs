@@ -45,7 +45,7 @@ namespace Demo.Implementors
                                    }
                                    return result.InternalSuccess(model);
                                })
-                               .Handle("return if user has not any active role", toggleOff: true, async (result) =>
+                               .Handle("return if user has not any active role", toggleOff: false, async (result) =>
                                   {
 
                                       var model = result.InterMethodsResult.Data;
@@ -70,65 +70,7 @@ namespace Demo.Implementors
                           .End("finish", async (result) => { });
         }
 
-        public async Task<BaseResponseDto<LoginResponse>> Login2Async(BaseRequestDto<LoginRequest> request)
-        {
-            return await BaseResponseDto<LoginResponse>.Success(new LoginResponse())
-                          .Start("Login feature")
-                               .Handle("return access response from cache", async (result) =>
-                           {
-                               var loginResponse = _memoryCache.Get<LoginResponse>(request.Data.Email);
-                               if (loginResponse is null)
-                               {
-                                   return result.Error(loginResponse, "Email Not exists");
-                               }
-                               return result.InternalSuccess(loginResponse);
 
-                           })
-                               .Handle("check if user exist in db", async (result) =>
-                               {
-                                   var user = _dataContext.Users.Include(x => x.Role)
-                                                          .FirstOrDefault(x => x.Email == request.Data.Email);
-                                   if (user is null)
-                                   {
-                                       return result.Error(user, "Email Not exists");
-                                   }
-                                   return result.InternalSuccess(user);
-
-                               })
-                               .Handle("return if user is soft deleted", async (result) =>
-                               {
-
-                                   var model = result.InterMethodsResult.Data;
-                                   if (model == null || model.IsDeleted)
-                                   {
-                                       return result.Error(model, "User is deleted");
-                                   }
-                                   return result.InternalSuccess(model);
-                               })
-                               .Handle("return if user has not any active role", toggleOff: true, async (result) =>
-                               {
-
-                                   var model = result.InterMethodsResult.Data;
-                                   if (!model.IsAdmin && ((model?.Role?.IsDeleted ?? true)))
-                                   {
-                                       return result.Error(model, "User has no access rights");
-                                   }
-                                   return result.InternalSuccess(model);
-                               })
-                               .Handle("return user can login", async (result) =>
-                               {
-
-                                   var model = result.InterMethodsResult.Data;
-
-                                   return result.Success(new LoginResponse()
-                                   {
-                                       Name = model?.Name,
-                                       Role = model?.Role?.Name,
-                                   });
-
-                               })
-                          .End("finish", async (result) => { });
-        }
     }
 
 }
